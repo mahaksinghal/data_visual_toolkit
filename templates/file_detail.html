@@ -1,0 +1,18 @@
+{% extends 'layout/base.html' %}
+
+
+{% block content %}
+<div class="container text-white">
+
+    <h2>File: {{ csv_file.name }}</h2>
+    <p>Uploaded at: {{ csv_file.uploaded_at }}</p>
+    <p><a href="{{ csv_file.file.url }}" class="btn btn-success" download>Download</a></p>
+    <form method="POST" action="{% url 'select_file' csv_file.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Select This File</button>
+    </form>
+    <a href="{% url 'file_list' %}" class="btn btn-link">Back to file list</a>
+</div>
+{% endblock %}
+
+<!-- Example: Button to select the file for further use -->

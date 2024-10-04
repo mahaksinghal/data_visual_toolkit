@@ -1,0 +1,263 @@
+{% extends 'layout/base.html' %}
+{% load widget_tweaks %}
+
+
+{% block css %}
+<style>
+    .body {
+        font-family: 'Arial', sans-serif;
+        height: 50vh;
+    }
+
+    .upload-container {
+        background-color: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 3rem;
+        border-radius: 20px;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+        width: 100%;
+        max-width: 500px;
+        /* text-align: center; */
+    }
+
+    .upload-container h1 {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        color: #ffd700;
+        font-weight: bold;
+    }
+
+    .form-control {
+        background-color: transparent;
+        border: 2px solid #fff;
+        color: #fff;
+    }
+
+    .form-control:focus {
+        box-shadow: none;
+        border-color: #ffd700;
+    }
+
+    .btn-upload {
+        background: linear-gradient(to right, #ff416c, #ff4b2b);
+        border: none;
+        padding: 10px 20px;
+        color: #fff;
+        font-size: 1.2rem;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+
+    .btn-upload:hover {
+        background: linear-gradient(to right, #ff4b2b, #ff416c);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px rgba(255, 65, 108, 0.6);
+    }
+
+    a {
+        color: #ffd700;
+        font-weight: bold;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+</style>
+{% endblock css %}
+
+
+{% block content %}
+<div class="body d-flex justify-content-center align-items-center text-white m-0 p-0">
+
+    <div class="upload-container text-center">
+
+        <h1>Upload a CSV File</h2>
+            <!-- File Upload Form -->
+            <form hx-post="{% url 'upload_file' %}" hx-target="#csv-content" method="post"
+                enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-4 text-start">
+                    <label for="id_file" class="mb-2">Select CSV file:</label>
+                    <input class="form-control" id="id_file" type="file" name="file" accept=".csv" required>
+
+                    {% if form.file.errors %}
+                    <div class="text-danger">{{ form.file.errors }}</div>
+                    {% endif %}
+
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-upload btn-lg mb-3 ">Upload</button>
+                </div>
+            </form>
+            <a href="{% url 'file_list' %}" class="btn btn-link">View Uploaded Files</a>
+    </div>
+</div>
+
+
+
+<div class="container text-white">
+    <!-- Display the table -->
+    <div id="csv-content">
+        {% if csv_data %}
+        <h3>Showing contents of: {{ file.file.name }}</h3>
+        <table id="csv-data" class="display table table-striped table-dark text-center" style="width:100%">
+            <thead>
+            <tr>
+                {% for heading in csv_data.0 %}
+                <th>{{ heading }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+            <tbody>
+                {% for row in csv_data|slice:"1:" %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+</div>
+</div>
+
+{% endblock content %}
+
+{% block js %}
+<!-- Initialize DataTables -->
+<script>
+    $(document).ready(function () {
+        $('#csv-data').DataTable({
+            "paging": true, // Enable pagination
+            "pageLength": 10, // Number of rows per page
+            "lengthMenu": [10, 25, 50, 75, 100], // Options for number of rows per page
+            "ordering": true, // Enable column ordering
+            "info": true, // Show table information
+            "searching": true // Enable search functionality
+        });
+    });
+</script>
+{% endblock js %}
+
+
+
+
+
+
+
+
+<!-- 
+<div class="container-fluid text-white">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h2>Upload a CSV File</h2>
+            <form method="POST" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">File Name</label>
+                    <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                        id="{{ form.name.id_for_label }}" name="{{ form.name.html_name }}"
+                        value="{{ form.name.value|default_if_none:'' }}">
+                    {% for error in form.name.errors %}
+                    <div class="invalid-feedback">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.file.id_for_label }}" class="form-label">Select CSV File</label>
+                    <input type="file" class="form-control {% if form.file.errors %}is-invalid{% endif %}"
+                        id="{{ form.file.id_for_label }}" name="{{ form.file.html_name }}">
+                    {% for error in form.file.errors %}
+                    <div class="invalid-feedback">
+                        {{ error }}
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+            <a href="{% url 'file_list' %}" class="btn btn-link mt-3">View Uploaded Files</a>
+        </div>
+    </div>
+</div>
+<script>
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const fileInput = document.getElementById('{{ form.file.id_for_label }}');
+        const filePath = fileInput.value;
+        const allowedExtensions = /(\.csv)$/i;
+        if (!allowedExtensions.exec(filePath)) {
+            alert('Please upload a file with .csv extension.');
+            fileInput.value = '';
+            event.preventDefault();
+        }
+    });
+</script>
+
+    -->
+
+<!-- <div class="row">
+        <div class="col-md-6 offset-md-3 text-white">
+            <h2>Upload a CSV File</h2>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_name" class="form-label">File Name</label>
+                    {{ form.name|add_class:"form-control" }}
+                    {% if form.name.errors %}
+                    <div class="text-danger">
+                        {{ form.name.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label for="id_file" class="form-label">Select CSV File</label>
+                    {{ form.file|add_class:"form-control" }}
+                    {% if form.file.errors %}
+                    <div class="text-danger">
+                        {{ form.file.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </form>
+            <a href="{% url 'file_list' %}" class="btn btn-link mt-3">View Uploaded Files</a>
+        </div>
+    </div> -->
+
+<!-- 
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h2>Upload a CSV File</h2>
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="{{ form.name.id_for_label }}" class="form-label">File Name</label>
+                <input type="text" class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                    id="{{ form.name.id_for_label }}" name="{{ form.name.html_name }}"
+                    value="{{ form.name.value|default_if_none:'' }}">
+                {% for error in form.name.errors %}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label for="{{ form.file.id_for_label }}" class="form-label">Select CSV File</label>
+                <input type="file" class="form-control {% if form.file.errors %}is-invalid{% endif %}"
+                    id="{{ form.file.id_for_label }}" name="{{ form.file.html_name }}">
+                {% for error in form.file.errors %}
+                <div class="invalid-feedback">
+                    {{ error }}
+                </div>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+        <a href="{% url 'file_list' %}" class="btn btn-link mt-3">View Uploaded Files</a>
+    </div>
+</div>
+-->
