@@ -1,18 +1,64 @@
 {% extends 'layout/base.html' %}
-
+{% load custom_filters %}
 
 {% block content %}
-<div class="container text-white">
-
-    <h2>File: {{ csv_file.name }}</h2>
-    <p>Uploaded at: {{ csv_file.uploaded_at }}</p>
-    <p><a href="{{ csv_file.file.url }}" class="btn btn-success" download>Download</a></p>
-    <form method="POST" action="{% url 'select_file' csv_file.id %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Select This File</button>
-    </form>
-    <a href="{% url 'file_list' %}" class="btn btn-link">Back to file list</a>
+<div class="container text-center mt-5 mb-4 w-50">
+    <div class="card bg-dark text-light">
+        <div class="card-body">
+            <h2 class="card-title">File Details: {{ csv_file.file.name }}</h2>
+            <p class="card-text">Uploaded At: {{csv_file.uploaded_at}}</p>
+            <p class="card-text">File Size: {{csv_file.file.size|filesizeformat}}</p>
+            <p class="card-text">Number of Rows: {{ csv_data|length }}</p>
+            <p class="card-text">Number of Columns: {{ csv_data.0|length }}</p>
+            <div class="d-flex justify-content-evenly mt-4">
+                <a href="{{ csv_file.file.url }}" class="btn btn-success" download>Download</a>
+                <form action="{% url 'select_file' csv_file.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Select This File</button>
+                </form>
+                <a href="{% url 'upload_file' %}" class="btn btn-secondary">Upload New File</a><br>
+                <a href="{% url 'file_list' %}" class="btn btn-info">Back to file list</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container text-light mb-4">
+    <table id="csv-data" class="table table-striped table-dark text-center" style="width:100%">
+        <thead>
+            <tr>
+                {% for heading in csv_data.0 %}
+                <th>{{ heading }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in csv_data|slice:"1:" %}
+            <tr>
+                {% for cell in row %}
+                <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
+
+
+{% block js %}
+<script>
+    $(document).ready(function () {
+        $('#csv-data').DataTable({
+            "paging": true, // Enable pagination
+            "pageLength": 10, // Number of rows per page
+            "lengthMenu": [10, 25, 50, 75, 100], // Options for number of rows per page
+            "ordering": true, // Enable column ordering
+            "info": true, // Show table information
+            "searching": true // Enable search functionality
+        });
+    });
+</script>
+{% endblock js %}
+
 
 <!-- Example: Button to select the file for further use -->

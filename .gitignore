@@ -1,0 +1,47 @@
+# Python-specific ignores
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.pyo
+*.pyd
+*.whl
+*.egg
+*.egg-info/
+dist/
+build/
+pip-log.txt
+pip-delete-this-directory.txt
+env/
+venv/
+ENV/
+venv.bak/
+*.env
+*.venv
+
+# Django-specific ignores
+db.sqlite3
+*.log
+*.pot
+*.pyc
+*.mo
+*.bak
+local_settings.py
+
+# Media files (uploaded files, like CSVs)
+media/
+csv_files/
+
+# Static files
+staticfiles/
+
+# Ignore IDE/editor configurations
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# MacOS specific ignores
+.DS_Store
+
+# Windows specific ignores
+Thumbs.db
