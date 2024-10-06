@@ -7,6 +7,7 @@
     <table id="uploaded-files-table" class="table table-striped table-dark">
         <thead>
             <tr>
+                <th class="text-center">Serial No.</th>
                 <th class="text-center">File Name</th>
                 <th class="text-center">Uploaded At</th>
                 <th class="text-center">Actions</th>
@@ -15,6 +16,7 @@
         <tbody>
             {% for file in files %}
             <tr>
+                <td class="text-center">{{ file.id }}</td>
                 <td class="text-center">{{ file.file.name }}</td>
                 <td class="text-center">{{ file.uploaded_at }}</td>
                 <td class="text-center">

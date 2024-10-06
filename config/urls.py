@@ -31,6 +31,9 @@ urlpatterns = [
     path('files/', views.file_list, name='file_list'),
     path('files/<int:file_id>/', views.file_detail, name='file_detail'),
     path('files/<int:file_id>/select/', views.select_file, name='select_file'),
+    # charts
+    # path('files/<int:file_id>/bar_chart/', views.load_bar_chart, name='load_bar_chart'),
+    # path('files/<int:file_id>/scatter_plot/', views.load_scatter_plot, name='load_scatter_plot'),
     
 ]
 

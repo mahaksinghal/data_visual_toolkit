@@ -98,7 +98,7 @@
     <div class="row">
         <div class="col-md-6">
             <div class="card bg-dark rounded-4">
-                <div class="card-title">Original Data Information:</div>
+                <h2 class="card-title text-white mt-2">Original Data Information:</h2>
                 <div class="card-body text-white">
                     <p class="card-text">Number of Rows: {{ original_data_info.rows }}</p>
                     <p class="card-text">Number of Columns: {{original_data_info.columns}}</p>
@@ -113,7 +113,7 @@
         </div>
         <div class="col-md-6">
             <div class="card bg-dark rounded-4">
-                <div class="card-title">Cleaned Data Information:</div>
+                <h2 class="card-title text-white mt-2">Cleaned Data Information:</h2>
                 <div class="card-body text-white">
                     <p class="card-text">Number of Rows: {{cleaned_data_info.rows}}</p>
                     <p class="card-text">Number of Columns: {{cleaned_data_info.columns}}</p>
@@ -135,40 +135,162 @@
         {% if original_data %}
         <div class="table-responsive">
             <h2>Original Data</h2>
-            <table id="original-cleaned-data">
-                {{ original_data|safe }}
-            </table>
+            {{ original_data|safe }}
         </div>
         {% endif %}
         {% if cleaned_data %}
         <div class="table-responsive">
             <h2>Cleaned and Preprocessed Data</h2>
-            <table id="original-cleaned-data">
-                {{ cleaned_data|safe }}
-            </table>
+            {{ cleaned_data|safe }}
         </div>
         {% endif %}
     </div>
 </div>
 
+<!-- graph selection form -->
+
+{% if original_data and cleaned_data %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Create a Graph</h3>
+            <form method="POST" id="graph-form" action="{% url 'upload_file' %}">
+                {% csrf_token %}
+                <!-- hidden input to identify that this form is for plotting -->
+                <input type="hidden" name="plot_type" value="bar">
+                <div class="mb-3">
+                    <label for="plot_type" class="form-label">Select Plot Type</label>
+                    <select name="plot_type" id="plot_type" class="form-select" required>
+                        <option value="">Choose...</option>
+                        <option value="bar">Bar Chart</option>
+                        <option value="hist">Histogram</option>
+                        <option value="scatter">Scatter Plot</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="x_column" class="form-label">Select X-axis Column</label>
+                    <select name="x_column" id="x_column" class="form-select" required>
+                        <option value="">Choose...</option>
+                        {% for column in categorical_columns %}
+                        <option value="{{column}}">{{column}}</option>
+                        {% endfor %}
+                        {% for column in numerical_columns %}
+                        <option value="{{column}}">{{column}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3" id="y_column_div" style="display: none;">
+                    <label for="y_column" class="form-label">Select Y-axis Column</label>
+                    <select name="y_column" id="y_column" class="form-select">
+                        <option value="">Choose...</option>
+                        {% for column in numerical_columns %}
+                        <option value="{{column}}">{{column}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Generate Graph</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+<!-- display user selected graph -->
+<div id="graph-container">
+    
+    {% if graphs %}
+    {% for graph in graphs %}
+    <div class="container text-white">
+        <h3>{{ graph.title }}</h3>
+        {{ graph.div|safe }}
+    </div>
+    {% endfor %}
+    {% endif %}
+        
+    
+        
+</div>
+
+
+
 <!-- data visualizations -->
+<div class="container text-white">
+    <!-- histogram -->
+    {% if histograms %}
+    <h3>Data visualizations</h3>
+    <h4>Histograms</h4>
+    {% for hist in histograms %}
+    <div class="mb-4">
+        <h5>{{ hist.title }}</h5>
+        {{hist.div|safe}}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <!-- scatter plots -->
+
+    {% if scatter_div %}
+    <h4>Scatter Plot</h4>
+    <div class="mb-4">
+        {{ scatter_div|safe }}
+    </div>
+    {% endif %}
+</div>
+
+
+
 
 {% endblock content %}
 
 {% block js %}
-<!-- Initialize DataTables -->
 <script>
-    $(document).ready(function () {
-        $('#original-cleaned-data').DataTable({
+    // initialize datatables on page load
+    document.addEventListener("DOMContentLoaded", function () {
+        initializeDataTables();
+    });
+
+    function initializeDataTables() {
+        $('#original-data').DataTable({
             "paging": true, // Enable pagination
             "pageLength": 10, // Number of rows per page
             "lengthMenu": [10, 25, 50, 75, 100], // Options for number of rows per page
             "ordering": true, // Enable column ordering
             "info": true, // Show table information
-            "searching": true // Enable search functionality
+            "searching": true, // Enable search functionality
+            destroy: true
+        });
+        $('#cleaned-data').DataTable({
+            "paging": true, // Enable pagination
+            "pageLength": 10, // Number of rows per page
+            "lengthMenu": [10, 25, 50, 75, 100], // Options for number of rows per page
+            "ordering": true, // Enable column ordering
+            "info": true, // Show table information
+            "searching": true, // Enable search functionality
+            destroy: true
+        });
+    }
+
+    // initialize DataTables after HTMX content load
+    document.body.addEventListener('htmx:afterSwap', (event) => {
+        initializeDataTables();
+    });
+
+    // show or hide y-axis column selection based on plot type
+    $(document).ready(function () {
+        $('#plot_type').change(function () {
+            var plotType = $(this).val();
+            if (plotType === 'scatter') {
+                $('#y_column_div').show();
+                $('#y_column').attr('required', 'required');
+            } else {
+                $('#y_column_div').hide();
+                $('#y_column').removeAttr('required');
+            }
         });
     });
-</script>x
+
+</script>
 {% endblock js %}
 
 
