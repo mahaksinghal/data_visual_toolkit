@@ -3,138 +3,11 @@
 
 {% block css %}
 <style>
-    .body {
-        font-family: 'Arial', sans-serif;
-        height: 50vh;
-    }
-
-    .upload-container {
-        background-color: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        padding: 3rem;
-        border-radius: 20px;
-        box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
-        width: 100%;
-        max-width: 500px;
-        /* text-align: center; */
-    }
-
-    .upload-container h1 {
-        font-size: 2.5rem;
-        margin-bottom: 20px;
-        color: #ffd700;
-        font-weight: bold;
-    }
-
-    .form-control {
-        background-color: transparent;
-        border: 2px solid #fff;
-        color: #fff;
-    }
-
-    .form-control:focus {
-        box-shadow: none;
-        border-color: #ffd700;
-    }
-
-    .btn-upload {
-        background: linear-gradient(to right, #ff416c, #ff4b2b);
-        border: none;
-        padding: 10px 20px;
-        color: #fff;
-        font-size: 1.2rem;
-        border-radius: 30px;
-        transition: all 0.3s ease;
-        text-align: center;
-    }
-
-    .btn-upload:hover {
-        background: linear-gradient(to right, #ff4b2b, #ff416c);
-        transform: scale(1.05);
-        box-shadow: 0 0 20px rgba(255, 65, 108, 0.6);
-    }
-
-    a {
-        color: #ffd700;
-        font-weight: bold;
-    }
-
-    a:hover {
-        text-decoration: underline;
-    }
-
-    .htmx-indicator {
-        display: none;
-    }
-
-    .htmx-request .htmx-indicator {
-        display: inline;
-    }
-
-    .htmx-request.htmx-indicator {
-        display: inline;
-    }
-
-    .loader {
-        border: 5px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 5px solid #3498db;
-        width: 40px;
-        height: 40px;
-        -webkit-animation: spin 2s linear infinite;
-        /* Safari */
-        animation: spin 2s linear infinite;
-    }
-
-    /* Safari */
-    @-webkit-keyframes spin {
-        0% {
-            -webkit-transform: rotate(0deg);
-        }
-
-        100% {
-            -webkit-transform: rotate(360deg);
-        }
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-    }
 </style>
 {% endblock css %}
 
 
 {% block content %}
-<!-- file upload -->
-<div class="body d-flex justify-content-center align-items-center text-white m-0 p-0">
-    <div class="upload-container text-center">
-        <h1>Upload a CSV File</h2>
-            <!-- File Upload Form -->
-            <form hx-post="{% url 'upload_file' %}" hx-target="#csv-content" method="post" enctype="multipart/form-data"
-                hx-indicator='#indicator'>
-                {% csrf_token %}
-                <div class="mb-4 text-start">
-                    <label for="id_file" class="mb-2">Select CSV file:</label>
-                    <input class="form-control" id="id_file" type="file" name="file" accept=".csv" required>
-                    {% if form.file.errors %}
-                    <div class="text-danger">{{ form.file.errors }}</div>
-                    {% endif %}
-                </div>
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-upload btn-lg mb-3">Upload</button>
-                    <img src="" alt="" class="htmx-indicator loader" id="indicator">
-
-                </div>
-            </form>
-            <a href="{% url 'file_list' %}" class="btn btn-link">View Uploaded Files</a>
-    </div>
-</div>
 
 <!-- uploaded file information -->
 <div class="container text-center w-auto mt-2 mb-2">
@@ -199,6 +72,7 @@
         <div class="col-md-12">
             <h3>Create a Graph</h3>
             <form method="POST" id="graph-form" action="{% url 'upload_file' %}">
+                
                 {% csrf_token %}
                 <!-- hidden input to identify that this form is for plotting -->
                 <input type="hidden" name="plot_type" value="bar">

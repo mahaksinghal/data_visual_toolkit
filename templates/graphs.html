@@ -1,0 +1,24 @@
+<!-- templates/graphs.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphs</title>
+    <!-- Include Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Generated Graphs</h1>
+    <div id="graph-container">
+        {% if graphs %}
+            {% for graph in graphs %}
+                <div class="container text-white">
+                    <h3>{{ graph.title }}</h3>
+                    {{ graph.div|safe }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</body>
+</html>
