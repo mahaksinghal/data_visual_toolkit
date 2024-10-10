@@ -8,8 +8,6 @@ import os
 import plotly.express as px
 import plotly.io as pio
 
-
-
 # Create your views here.
 def cleaning_data(dataframe):
     # preprocessing steps
@@ -22,6 +20,13 @@ def cleaning_data(dataframe):
     return dataframe
 
 def upload_file(request):
+    if request.method == "POST":
+        
+        # send the CSV content back to the template
+        return render(request, 'data_info.html')
+    return render(request, 'upload.html')
+
+def data_view(request):
     if request.method == "POST":
         if request.FILES.get('file'):
             csv_file = request.FILES['file']
@@ -65,29 +70,7 @@ def upload_file(request):
                 scatter_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
                 scatter_plot.append({'title': f'Scatter Plot of {numerical_cols[i]} vs {numerical_cols[i+1]}', 'div': scatter_div})
             
-        # Initialize Empty Graphs
-        graphs = []
-        # if the user has selected columns for graphing, generate the graphs
-        if 'plot_type' in request.POST:
-            plot_type = request.POST.get('plot_type')
-            x_column = request.POST.get('x_column')
-            y_column = request.POST.get('y_column')
-
-            if plot_type == 'bar' and x_column:
-                fig = px.bar(cleaned_df, x=x_column, title=f'Bar Chart of {x_column}', template='plotly_dark')
-                graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
-                graphs.append({'title': f'Bar Chart of {x_column}', 'div': graph_div})
-            
-            elif plot_type == 'scatter' and x_column and y_column:
-                fig = px.scatter(cleaned_df, x=x_column, y=y_column, title=f'Scatter Plot of {x_column} vs {y_column}', trendline="ols", template='plotly_dark')
-                graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
-                graphs.append({'title': f'Scatter Plot of {x_column} vs {y_column}', 'div': graph_div})
-            
-            elif plot_type == 'histogram' and x_column:
-                fig = px.histogram(cleaned_df, x=x_column, title=f'Histogram of {x_column}', nbins=20, template='plotly_dark')
-                graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
-                graphs.append({'title': f'Histogram of {x_column}', 'div': graph_div})
-
+        
         # send original and cleaned data back to the template
         context = {
             'original_data_info': {
@@ -100,7 +83,6 @@ def upload_file(request):
                 'columns': cleaned_df.shape[1],
                 'column_names': cleaned_df.columns.tolist()
             },
-            'graphs': graphs,
             'histograms': histograms,
             'scatter_plot': scatter_plot,
             'cleaned_data': cleaned_data,
@@ -109,9 +91,70 @@ def upload_file(request):
             'categorical_columns': categorical_columns,
         }
         # send the CSV content back to the template
-        return render(request, 'data_view.html', context)
-    # uploaded_file = CSVFile.objects.all()
+        return render(request, 'data_info.html', context)
     return render(request, 'upload.html')
+
+def generate_graphs(request):
+    if request.method == 'POST':
+        # load the CSV file from the session
+        file_path = request.session.get('recent_file_path')
+        if not file_path:
+            messages.error(request, 'File path is not availabe in the session')
+            return redirect('upload_file')
+        
+        try:
+            df = pd.read_csv(file_path)
+        except Exception as e:
+            messages.error(request, f'Error reading the CSV file: {e}')
+            return redirect('upload_file')
+        
+        cleaned_df = df.copy()
+        # cleaning and preprocessing
+        cleaned_df = cleaning_data(cleaned_df)
+
+        # retrieve existing graphs from the session if available
+        graphs = request.session.get('graphs', [])
+        
+        # generate graphs based on user input
+        plot_type = request.POST.get('plot_type')
+        x_column = request.POST.get('x_column')
+        y_column = request.POST.get('y_column')
+
+        if plot_type == 'bar' and x_column:
+            fig = px.bar(cleaned_df, x=x_column, title=f'Bar Chart of {x_column}', template='plotly_dark')
+            graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
+            graphs.append({'title': f'Bar Chart of {x_column}', 'div': graph_div})
+
+        elif plot_type == 'scatter' and x_column and y_column:
+            try: 
+                cleaned_df[x_column] = pd.to_numeric(cleaned_df[x_column])
+            except Exception as e:
+                messages.error(request, f'Error converting columns to numeric: {e}')
+                return redirect('upload_file')
+            fig = px.scatter(cleaned_df, x=x_column, y=y_column, title=f'Scatter Plot of {x_column} vs {y_column}', trendline="ols", template='plotly_dark')
+            graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
+            graphs.append({'title': f'Scatter Plot of {x_column} vs {y_column}', 'div': graph_div})
+
+        elif plot_type == 'histogram' and x_column:
+            fig = px.histogram(cleaned_df, x=x_column, title=f'Histogram of {x_column}', nbins=20, template='plotly_dark')
+            graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
+            graphs.append({'title': f'Histogram of {x_column}', 'div': graph_div})
+        
+        # save the graphs in the session
+        request.session['graphs'] = graphs
+
+        # If the user clicked "Add Graph", redirect back to the form
+        if 'add_graph' in request.POST:
+            return render('data_view')
+
+        # clear the entire session after processing the CSV file if not adding a new graph
+        request.session.flush()
+
+        context = {
+            'graphs': graphs
+            }
+        return render(request, 'graphs.html', context)
+    return redirect('upload_file')
 
 def file_list(request):
     files = CSVFile.objects.all().order_by('-uploaded_at')
@@ -135,71 +178,3 @@ def select_file(request, file_id):
     csv_file = get_object_or_404(CSVFile, id= file_id)
     messages.success(request, f'File "{csv_file.file.name}" has been selected for further use')
     return redirect('file_list')
-
-
-
-
-
-
-# def load_bar_chart(request, file_id):
-#     uploaded_file = get_object_or_404(CSVFile, id = file_id)
-#     file_path = os.path.join(settings.MEDIA_ROOT, upload_file.file.name)
-
-#     try:
-#         df = pd.read_csv(file_path)
-#     except Exception as e:
-#         messages.error(request, f'Error reading the CSV file: {e}')
-#         return redirect('upload_file')
-    
-#     # cleaning and preprocessing the data
-#     cleaned_df = df.copy()
-#     cleaned_df.dropna(inplace=True)
-#     cleaned_df.drop_duplicates(inplace=True)
-#     cleaned_df = cleaned_df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-#     cleaned_df = cleaned_df.fillna(0)
-
-#     # generate bar chart
-#     categorical_col = None
-#     for col in cleaned_df.columns:
-#         if cleaned_df[col].dtype == 'object':
-#             categorical_col = col
-#             break
-
-#     if categorical_col:
-#         fig_bar = px.bar(cleaned_df, x=categorical_col, title=f'Count of {categorical_col}')
-#         graph_html = fig_bar.to_html(full_html=False, include_plotlyjs=False)
-#         context = {
-#             'graph_title': f'Bar Chart of {categorical_col}',
-#             'graph_html': graph_html,
-#         }
-#         return render(request, 'bar_chart.html', context)
-#     else:
-#         return JsonResponse({'error': 'No categorical column found.'})
-    
-
-# def load_scatter_plot(request, file_id):
-    # uploaded_file = get_object_or_404(CSVFile, id=file_id)
-    # file_path = os.path.join(settings.MEDIA_ROOT, uploaded_file.file.name)
-
-    # try:
-    #     df = pd.read_csv(file_path)
-    #     cleaned_df = df.copy()
-    #     cleaned_df.dropna(inplace=True)
-    #     cleaned_df.drop_duplicates(inplace=True)
-    #     cleaned_df = cleaned_df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-    #     cleaned_df = cleaned_df.fillna(0)
-
-    #     numerical_cols = cleaned_df.select_dtypes(include=['int64', 'float64']).columns.tolist()
-    #     if len(numerical_cols) >= 2:
-    #         fig_scatter = px.scatter(cleaned_df, x=numerical_cols[0], y=numerical_cols[1], title=f'{numerical_cols[0]} vs {numerical_cols[1]}')
-    #         graph_html = fig_scatter.to_html(full_html=False, include_plotlyjs=False)
-    #         context = {
-    #             'graph_title': f'Scatter Plot of {numerical_cols[0]} vs {numerical_cols[1]}',
-    #             'graph_html': graph_html,
-    #         }
-    #         return render(request, 'scatter_plot.html', context)
-    #     else:
-    #         return JsonResponse({'error': 'Not enough numerical columns for scatter plot.'})
-
-    # except Exception as e:
-    #     return JsonResponse({'error': str(e)})

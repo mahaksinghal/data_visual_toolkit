@@ -67,11 +67,11 @@
 <!-- graph selection form -->
 
 {% if original_data and cleaned_data %}
-<div class="container">
+<div class="container text-white">
     <div class="row">
         <div class="col-md-12">
             <h3>Create a Graph</h3>
-            <form method="POST" id="graph-form" action="{% url 'upload_file' %}">
+            <form method="POST" id="graph-form" action="{% url 'generate_graphs' %}">
                 
                 {% csrf_token %}
                 <!-- hidden input to identify that this form is for plotting -->
@@ -125,8 +125,6 @@
     {% endfor %}
     {% endif %}
 </div>
-
-
 
 <!-- data visualizations -->
 <div class="container text-white">
@@ -206,6 +204,5 @@
             }
         });
     });
-
 </script>
 {% endblock js %}
