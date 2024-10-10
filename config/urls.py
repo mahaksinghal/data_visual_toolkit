@@ -29,6 +29,7 @@ urlpatterns = [
     # upload
     path('',views.upload_file, name='upload_file'),
     path('data_view/', views.data_view, name='data_view'),
+    # path('delete_graph/', views.delete_graph, name='delete_graph'),
     path('files/', views.file_list, name='file_list'),
     path('files/<int:file_id>/', views.file_detail, name='file_detail'),
     path('files/<int:file_id>/select/', views.select_file, name='select_file'),

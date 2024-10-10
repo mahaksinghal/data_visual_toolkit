@@ -72,7 +72,6 @@
         <div class="col-md-12">
             <h3>Create a Graph</h3>
             <form method="POST" id="graph-form" action="{% url 'generate_graphs' %}">
-                
                 {% csrf_token %}
                 <!-- hidden input to identify that this form is for plotting -->
                 <input type="hidden" name="plot_type" value="bar">
@@ -112,19 +111,6 @@
     </div>
 </div>
 {% endif %}
-
-
-<!-- display user selected graph -->
-<div id="graph-container">
-    {% if graphs %}
-    {% for graph in graphs %}
-    <div class="container text-white">
-        <h3>{{ graph.title }}</h3>
-        {{ graph.div|safe }}
-    </div>
-    {% endfor %}
-    {% endif %}
-</div>
 
 <!-- data visualizations -->
 <div class="container text-white">

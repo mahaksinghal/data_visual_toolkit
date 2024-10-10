@@ -27,7 +27,7 @@ def upload_file(request):
     return render(request, 'upload.html')
 
 def data_view(request):
-    if request.method == "POST":
+    # if request.method == "POST":
         if request.FILES.get('file'):
             csv_file = request.FILES['file']
             uploaded_file = CSVFile.objects.create(file=csv_file)
@@ -92,7 +92,7 @@ def data_view(request):
         }
         # send the CSV content back to the template
         return render(request, 'data_info.html', context)
-    return render(request, 'upload.html')
+    # return render(request, 'upload.html')
 
 def generate_graphs(request):
     if request.method == 'POST':
@@ -125,6 +125,11 @@ def generate_graphs(request):
             graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
             graphs.append({'title': f'Bar Chart of {x_column}', 'div': graph_div})
 
+        elif plot_type == 'hist' and x_column:
+            fig = px.histogram(cleaned_df, x=x_column, title=f'Histogram of {x_column}', nbins=20, template='plotly_dark')
+            graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
+            graphs.append({'title': f'Histogram of {x_column}', 'div': graph_div})
+
         elif plot_type == 'scatter' and x_column and y_column:
             try: 
                 cleaned_df[x_column] = pd.to_numeric(cleaned_df[x_column])
@@ -135,17 +140,12 @@ def generate_graphs(request):
             graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
             graphs.append({'title': f'Scatter Plot of {x_column} vs {y_column}', 'div': graph_div})
 
-        elif plot_type == 'histogram' and x_column:
-            fig = px.histogram(cleaned_df, x=x_column, title=f'Histogram of {x_column}', nbins=20, template='plotly_dark')
-            graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
-            graphs.append({'title': f'Histogram of {x_column}', 'div': graph_div})
-        
         # save the graphs in the session
         request.session['graphs'] = graphs
 
         # If the user clicked "Add Graph", redirect back to the form
         if 'add_graph' in request.POST:
-            return render('data_view')
+            return render(request, 'data_view', {'graphs': graphs})
 
         # clear the entire session after processing the CSV file if not adding a new graph
         request.session.flush()
@@ -155,6 +155,15 @@ def generate_graphs(request):
             }
         return render(request, 'graphs.html', context)
     return redirect('upload_file')
+
+# def delete_graph(request):
+#     if request.method == 'POST':
+#         graph_title = request.POST.get('graph_title')
+#         graphs = request.session.get('graphs', [])
+#         graphs = [graph for graph in graphs if graph['title'] != graph_title]
+#         request.session['graphs'] = graphs
+#         messages.success(request, f'Graph "{graph_title}" deleted successfully.')
+#     return redirect('generate_graphs')
 
 def file_list(request):
     files = CSVFile.objects.all().order_by('-uploaded_at')

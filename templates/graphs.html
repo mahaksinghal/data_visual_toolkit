@@ -8,12 +8,17 @@
     <div class="container text-white">
         <h3>{{ graph.title }}</h3>
         {{ graph.div|safe }}
+        <!-- <form method="post" action="{% url 'delete_graph' %}" style="display:inline;">
+            {% csrf_token %}
+            <input type="hidden" name="graph_title" value="{{ graph.title }}">
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form> -->
     </div>
     {% endfor %}
     {% endif %}
 </div>
 <div class="text-center mt-4">
-    <form method="get" action="{% url 'upload_file' %}">
+    <form method="get" action="{% url 'data_view' %}">
         <button type="submit" class="btn btn-primary">Add New Graph</button>
     </form>
 </div>
