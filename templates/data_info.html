@@ -77,11 +77,14 @@
                 <input type="hidden" name="plot_type" value="bar">
                 <div class="mb-3">
                     <label for="plot_type" class="form-label">Select Plot Type</label>
-                    <select name="plot_type" id="plot_type" class="form-select" required>
+                    <select name="plot_type" id="plot_type" class="form-select" required
+                        onchange="updateColumnVisibility()">
                         <option value="">Choose...</option>
                         <option value="bar">Bar Chart</option>
                         <option value="hist">Histogram</option>
                         <option value="scatter">Scatter Plot</option>
+                        <option value="pie">Pie Chart</option>
+                        <option value="line">Line Chart</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -89,10 +92,10 @@
                     <select name="x_column" id="x_column" class="form-select" required>
                         <option value="">Choose...</option>
                         {% for column in categorical_columns %}
-                        <option value="{{column}}">{{column}}</option>
+                        <option value="{{column}}" class="categorical">{{column}}</option>
                         {% endfor %}
                         {% for column in numerical_columns %}
-                        <option value="{{column}}">{{column}}</option>
+                        <option value="{{column}}" class="numerical">{{column}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -146,9 +149,10 @@
 
 {% block js %}
 <script>
-    // initialize datatables on page load
-    document.addEventListener("DOMContentLoaded", function () {
-        initializeDataTables();
+    document.addEventListener('DOMContentLoaded', function () {
+        updateColumnVisibility(); // Call the function on page load
+        document.getElementById('plot_type').addEventListener('change', updateColumnVisibility); // Call the function when plot type changes
+        initializeDataTables(); // Initialize DataTables on page load
     });
 
     function initializeDataTables() {
@@ -181,7 +185,7 @@
     $(document).ready(function () {
         $('#plot_type').change(function () {
             var plotType = $(this).val();
-            if (plotType === 'scatter') {
+            if (plotType === 'scatter' || plotType === 'line') {
                 $('#y_column_div').show();
                 $('#y_column').attr('required', 'required');
             } else {
@@ -190,5 +194,24 @@
             }
         });
     });
+
+    function updateColumnVisibility() {
+        const plotType = document.getElementById('plot_type').value;
+        const xColumnSelect = document.getElementById('x_column');
+        const yColumnDiv = document.getElementById('y_column_div');
+        const categoricalOptions = xColumnSelect.querySelectorAll('.categorical');
+        const numericalOptions = xColumnSelect.querySelectorAll('.numerical');
+
+        if (plotType === 'scatter' || plotType === 'line') {
+            categoricalOptions.forEach(option => {
+                option.style.display = 'none';
+            });
+        } else if(plotType === 'pie') {
+            numericalOptions.forEach(option => {
+                option.style.display = 'none';
+            })
+        }
+    }
+
 </script>
 {% endblock js %}

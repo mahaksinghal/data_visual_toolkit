@@ -21,9 +21,9 @@ def cleaning_data(dataframe):
 
 def upload_file(request):
     if request.method == "POST":
-        
         # send the CSV content back to the template
         return render(request, 'data_info.html')
+    request.session.flush()
     return render(request, 'upload.html')
 
 def data_view(request):
@@ -131,14 +131,20 @@ def generate_graphs(request):
             graphs.append({'title': f'Histogram of {x_column}', 'div': graph_div})
 
         elif plot_type == 'scatter' and x_column and y_column:
-            try: 
-                cleaned_df[x_column] = pd.to_numeric(cleaned_df[x_column])
-            except Exception as e:
-                messages.error(request, f'Error converting columns to numeric: {e}')
-                return redirect('upload_file')
             fig = px.scatter(cleaned_df, x=x_column, y=y_column, title=f'Scatter Plot of {x_column} vs {y_column}', trendline="ols", template='plotly_dark')
             graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
             graphs.append({'title': f'Scatter Plot of {x_column} vs {y_column}', 'div': graph_div})
+        
+        elif plot_type == 'pie' and x_column:
+            fig = px.pie(cleaned_df, names=x_column, title=f'Pie Chart of {x_column}', template='plotly_dark')
+            fig.update_layout(legend=dict(orientation="h", yanchor="bottom", y=-0.2, xanchor="center", x=0.5))
+            graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
+            graphs.append({'title': f'Pie Chart of {x_column}', 'div': graph_div})
+
+        elif plot_type == 'line' and x_column and y_column:
+            fig = px.line(cleaned_df, x=x_column, y=y_column, title=f'Line Chart of {x_column} vs {y_column}', template='plotly_dark')
+            graph_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
+            graphs.append({'title': f'Line Chart of {x_column} vs {y_column}', 'div': graph_div})
 
         # save the graphs in the session
         request.session['graphs'] = graphs
@@ -146,9 +152,6 @@ def generate_graphs(request):
         # If the user clicked "Add Graph", redirect back to the form
         if 'add_graph' in request.POST:
             return render(request, 'data_view', {'graphs': graphs})
-
-        # clear the entire session after processing the CSV file if not adding a new graph
-        request.session.flush()
 
         context = {
             'graphs': graphs
