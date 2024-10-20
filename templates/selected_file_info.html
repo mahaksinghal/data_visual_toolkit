@@ -1,9 +1,8 @@
 {% extends 'layout/base.html' %}
-
 {% block content %}
 
-<!-- uploaded file information -->
-<div class="container text-center w-auto mt-4 mb-2">
+<!-- selected file information -->
+<div class="container text-center w-auto mt-5 mb-2">
     {% if original_data and cleaned_data %}
     <div class="row">
         <div class="col-md-6">
@@ -13,6 +12,7 @@
                     <p class="card-text">Number of Rows: {{ original_data_info.rows }}</p>
                     <p class="card-text">Number of Columns: {{original_data_info.columns}}</p>
                     <p class="card-text">Column Names:
+
                         {% for column in original_data_info.column_names %}
                         <span class="badge bg-secondary">{{column}}</span>
                         {% endfor %}
@@ -57,12 +57,13 @@
 </div>
 
 <!-- graph selection form -->
+
 {% if original_data and cleaned_data %}
 <div class="container text-white">
     <div class="row">
         <div class="col-md-12">
             <h3 class="mt-4">Create a Graph</h3>
-            <form method="POST" id="graph-form" action="{% url 'generate_graphs' %}">
+            <form method="POST" id="graph-form" action="{% url 'generated_graphs' %}">
                 {% csrf_token %}
                 <!-- hidden input to identify that this form is for plotting -->
                 <input type="hidden" name="plot_type" value="bar">
@@ -150,7 +151,7 @@
             "ordering": true, // Enable column ordering
             "info": true, // Show table information
             "searching": true, // Enable search functionality
-            destroy: true,
+            destroy: true
         });
         $('#cleaned-data').DataTable({
             "paging": true, // Enable pagination
@@ -193,7 +194,7 @@
             categoricalOptions.forEach(option => {
                 option.style.display = 'none';
             });
-        } else if (plotType === 'pie') {
+        } else if(plotType === 'pie') {
             numericalOptions.forEach(option => {
                 option.style.display = 'none';
             })

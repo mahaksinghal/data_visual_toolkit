@@ -84,20 +84,7 @@
         border-left: 5px solid pink;
         width: 30px;
         height: 30px;
-        -webkit-animation: spin 2s linear infinite;
-        /* Safari */
         animation: spin 2s linear infinite;
-    }
-
-    /* Safari */
-    @-webkit-keyframes spin {
-        0% {
-            -webkit-transform: rotate(0deg);
-        }
-
-        100% {
-            -webkit-transform: rotate(360deg);
-        }
     }
 
     @keyframes spin {
@@ -119,8 +106,7 @@
     <div class="upload-container text-center">
         <h1>Upload a CSV File</h2>
             <!-- File Upload Form -->
-            <form hx-post="{% url 'data_view' %}" hx-target="#csv-content" method="post" enctype="multipart/form-data"
-                hx-indicator='#indicator'>
+            <form hx-post="{% url 'data_view' %}" hx-target="#csv-content" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="mb-4 text-start">
                     <label for="id_file" class="mb-2">Select CSV file:</label>
@@ -131,7 +117,8 @@
                 </div>
                 <div class="mt-4">
                     <button type="submit" class="btn btn-upload btn-lg mb-3">Upload
-                        <img src="{% static 'images/spinner.jpeg' %}" alt="." class="htmx-indicator loader" id="indicator">
+                        <img src="{% static 'images/spinner.jpeg' %}" alt="." class="htmx-indicator loader"
+                            id="indicator">
                     </button>
                 </div>
             </form>

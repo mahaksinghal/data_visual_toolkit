@@ -12,11 +12,8 @@
             <p class="card-text">Number of Columns: {{ csv_data.0|length }}</p>
             <div class="d-flex justify-content-evenly mt-4">
                 <a href="{{ csv_file.file.url }}" class="btn btn-success" download>Download</a>
-                <form action="{% url 'select_file' csv_file.id %}" method="POST">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary">Select This File</button>
-                </form>
-                <a href="{% url 'upload_file' %}" class="btn btn-secondary">Upload New File</a><br>
+                <a href="{% url 'select_file' csv_file.id %}" class="btn btn-primary">Select File</a>
+                <a href="{% url 'upload_file' %}" class="btn btn-secondary">Upload New File</a>
                 <a href="{% url 'file_list' %}" class="btn btn-info">Back to file list</a>
             </div>
         </div>
@@ -59,6 +56,3 @@
     });
 </script>
 {% endblock js %}
-
-
-<!-- Example: Button to select the file for further use -->

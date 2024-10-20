@@ -19,21 +19,26 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from uploads import views
+from uploads import views as ufv
+from selected_file import views as sfv
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("__reload__/", include("django_browser_reload.urls")),
-    # path('', include('uploads.urls')),
-    # upload
-    path('',views.upload_file, name='upload_file'),
-    path('data_view/', views.data_view, name='data_view'),
-    # path('delete_graph/', views.delete_graph, name='delete_graph'),
-    path('files/', views.file_list, name='file_list'),
-    path('files/<int:file_id>/', views.file_detail, name='file_detail'),
-    path('files/<int:file_id>/select/', views.select_file, name='select_file'),
-    path('generate_graphs/', views.generate_graphs, name='generate_graphs'),    
+
+    # uploaded file
+    path('',ufv.upload_file, name='upload_file'),
+    path('data_view/', ufv.data_view, name='data_view'),
+    path('generate_graphs/', ufv.generate_graphs, name='generate_graphs'),   
+    path('download_graphs/', ufv.download_graphs_pdf, name='download_graphs_pdf'),
+    path('files/', ufv.file_list, name='file_list'),
+
+    # selected file
+    path('files/<int:file_id>/', sfv.file_detail, name='file_detail'),
+    path('files/<int:file_id>/select/', sfv.select_file, name='select_file'),
+    path('files/generated_graphs/', sfv.generated_graphs, name='generated_graphs'),
+
 ]
 
 if settings.DEBUG:

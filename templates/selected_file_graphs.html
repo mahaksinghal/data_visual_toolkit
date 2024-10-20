@@ -12,7 +12,7 @@
     {% endif %}
 </div>
 <div class="text-center mt-4 d-flex justify-content-center align-items-center mb-4">
-    <form method="get" action="{% url 'data_view' %}">
+    <form method="get" action="{% url 'generated_graphs' %}">
         <button type="submit" class="btn btn-primary me-2">Add New Graph</button>
     </form>
     <form method="get" action="{% url 'download_graphs_pdf' %}">
