@@ -150,10 +150,10 @@ def generated_graphs(request):
         # save the graphs in the session
         request.session['graphs'] = graphs
 
-        # If the user clicked "Add Graph", redirect back to the form
-        if 'add_graph' in request.POST:
-            return render(request, 'select_file.html', {'graphs': graphs})
-
+        # If the user clicked "Add Graph", redirect back to the selected_file
+        if 'add_graph' in request.GET:
+            return render(request, 'selected_file_info.html', {'graphs': graphs})
+        
         context = {
             'graphs': graphs
             }

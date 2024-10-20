@@ -149,7 +149,7 @@ def generate_graphs(request):
         request.session['graphs'] = graphs
 
         # If the user clicked "Add Graph", redirect back to the data_view
-        if 'graph' in request.POST:
+        if 'graph' in request.GET:
             return render(request, 'data_view', {'graphs': graphs})
 
         context = {
