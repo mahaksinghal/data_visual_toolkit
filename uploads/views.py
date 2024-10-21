@@ -9,7 +9,6 @@ import plotly.io as pio
 
 # Create your views here.
 def cleaning_data(dataframe):
-
     # preprocessing steps
     dataframe.dropna(inplace=True) # drop rows with missing values
     dataframe.drop_duplicates(inplace=True) # drop duplicate rows
@@ -157,22 +156,6 @@ def generate_graphs(request):
             }
         return render(request, 'graphs.html', context)
     return redirect('upload_file')
-
-
-from django.http import HttpResponse
-from django.template.loader import render_to_string
-from xhtml2pdf import pisa
-from django_xhtml2pdf.utils import generate_pdf
-
-def download_graphs_pdf(request):
-    graphs = request.session.get('graphs', [])  # Fetch your graphs data
-    html = render_to_string('graphs.html', {'graphs': graphs})
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="graphs.pdf"'
-    pisa_status = pisa.CreatePDF(html, dest=response)
-    if pisa_status.err:
-        return HttpResponse('We had some errors <pre>' + html + '</pre>')
-    return response
 
 def file_list(request):
     files = CSVFile.objects.all()

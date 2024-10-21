@@ -30,8 +30,7 @@ urlpatterns = [
     # uploaded file
     path('',ufv.upload_file, name='upload_file'),
     path('data_view/', ufv.data_view, name='data_view'),
-    path('generate_graphs/', ufv.generate_graphs, name='generate_graphs'),   
-    path('download_graphs/', ufv.download_graphs_pdf, name='download_graphs_pdf'),
+    path('generate_graphs/', ufv.generate_graphs, name='generate_graphs'),
     path('files/', ufv.file_list, name='file_list'),
 
     # selected file

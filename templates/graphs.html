@@ -4,7 +4,7 @@
 <div id="graph-container">
     {% if graphs %}
     {% for graph in graphs %}
-    <div class="container text-white">
+    <div class="container">
         <h3 class="mt-4 mb-4">{{ graph.title }}</h3>
         {{ graph.div|safe }}
     </div>
@@ -15,8 +15,7 @@
     <form method="get" action="{% url 'data_view' %}">
         <button type="submit" class="btn btn-primary me-2">Add New Graph</button>
     </form>
-    <form method="get" action="{% url 'download_graphs_pdf' %}">
-        <button type="submit" class="btn btn-secondary">Download Graphs as PDF</button>
-    </form>
+
+    <button onclick="window.print()" class="btn btn-secondary">Print this page</button>
 </div>
 {% endblock content %}
