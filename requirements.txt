@@ -1,4 +1,2 @@
 pandas
 plotly
-xhtml2pdf
-django-xhtml2pdf
