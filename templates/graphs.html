@@ -1,10 +1,10 @@
 {% extends 'layout/base.html' %}
 <!-- display user selected graph -->
 {% block content %}
-<div id="graph-container">
+<div id="graph-container text-white">
     {% if graphs %}
     {% for graph in graphs %}
-    <div class="container">
+    <div class="container text-white">
         <h3 class="mt-4 mb-4">{{ graph.title }}</h3>
         {{ graph.div|safe }}
     </div>
