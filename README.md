@@ -17,6 +17,7 @@ This project is a Django-based web application that allows users to upload CSV f
 - **Data Visualization:** Plotly
 - **Database:** SQLite (Default For Django)
 
+## Screenshots
 ![image](https://github.com/user-attachments/assets/1eded73c-3c98-4ff3-ae22-e04be61f23a5)
 
 ![image](https://github.com/user-attachments/assets/19a5ea8c-5bb2-4fd1-9824-4d0929a7b927)
