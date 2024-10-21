@@ -68,8 +68,7 @@
                 <input type="hidden" name="plot_type" value="bar">
                 <div class="mb-3">
                     <label for="plot_type" class="form-label mt-2 mb-2">Select Plot Type</label>
-                    <select name="plot_type" id="plot_type" class="form-select" required
-                        onchange="updateColumnVisibility()">
+                    <select name="plot_type" id="plot_type" class="form-select" required>
                         <option value="">Choose...</option>
                         <option value="bar">Bar Chart</option>
                         <option value="hist">Histogram</option>
@@ -137,8 +136,6 @@
 {% block js %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        updateColumnVisibility(); // Call the function on page load
-        document.getElementById('plot_type').addEventListener('change', updateColumnVisibility); // Call the function when plot type changes
         initializeDataTables(); // Initialize DataTables on page load
     });
 
@@ -181,24 +178,5 @@
             }
         });
     });
-
-    function updateColumnVisibility() {
-        const plotType = document.getElementById('plot_type').value;
-        const xColumnSelect = document.getElementById('x_column');
-        const yColumnDiv = document.getElementById('y_column_div');
-        const categoricalOptions = xColumnSelect.querySelectorAll('.categorical');
-        const numericalOptions = xColumnSelect.querySelectorAll('.numerical');
-
-        if (plotType === 'scatter' || plotType === 'line') {
-            categoricalOptions.forEach(option => {
-                option.style.display = 'none';
-            });
-        } else if(plotType === 'pie') {
-            numericalOptions.forEach(option => {
-                option.style.display = 'none';
-            })
-        }
-    }
-
 </script>
 {% endblock js %}

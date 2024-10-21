@@ -158,7 +158,7 @@ def generate_graphs(request):
         return render(request, 'graphs.html', context)
     return redirect('upload_file')
 
-# views.py
+
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
