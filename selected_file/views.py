@@ -95,6 +95,70 @@ def select_file(request, file_id):
     # send the CSV content back to the template
     return render(request, 'selected_file_info.html', context)
 
+def select_file_view(request):
+    file_path = request.session.get('selected_file_path')
+    if not file_path:
+            messages.error(request, 'File path is not availabe in the session')
+            return redirect('upload_file')
+        
+    try:
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        messages.error(request, f'Error reading the CSV file: {e}')
+        return redirect('upload_file')
+    # cleaning and preprocessing the data
+    cleaned_df = df.copy()
+    # cleaned dataframe returned
+    cleaned_df = cleaning_data(cleaned_df)
+
+    # convert original and cleaned dataframe to HTML tables
+    original_data = df.to_html(classes='table table-striped table-bordered table-dark table-hover',table_id="original-data", index=False)
+    cleaned_data = cleaned_df.to_html(classes='table table-striped table-bordered table-dark table-hover',table_id='cleaned-data', index=False)
+
+    # get cloumn names for selection
+    numerical_columns = cleaned_df.select_dtypes(include=['number']).columns.tolist()
+    categorical_columns = cleaned_df.select_dtypes(include=['object', 'category']).columns.tolist()
+
+    # generate Plotly Graphs
+    # 1. Histogram for each numerical columns
+    histograms = []
+    numerical_cols = cleaned_df.select_dtypes(include=['number']).columns
+    for column in numerical_cols:
+        fig = px.histogram(cleaned_df, x = column, title=f'Histogram of {column}', nbins=20, template='plotly_dark')
+        hist_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
+        histograms.append({'title': f'Histogram of {column}', 'div':hist_div})
+
+    # 2. Scatter Plot between first two numerical columns(if at least two exist)
+    scatter_plot = []
+    if len(numerical_cols)>=2:
+        for i in range(len(numerical_cols)-1):
+            fig = px.scatter(cleaned_df, x=numerical_cols[i], y=numerical_cols[i+1], title=f'Scatter Plot of {numerical_cols[i]} vs {numerical_cols[i+1]}', trendline="ols", template='plotly_dark')
+            scatter_div = pio.to_html(fig, full_html=False, include_plotlyjs=False)
+            scatter_plot.append({'title': f'Scatter Plot of {numerical_cols[i]} vs {numerical_cols[i+1]}', 'div': scatter_div})
+        
+    
+    # send original and cleaned data back to the template
+    context = {
+        'original_data_info': {
+            'rows': df.shape[0],
+            'columns': df.shape[1],
+            'column_names': df.columns.tolist()
+        },
+        'cleaned_data_info': {
+            'rows': cleaned_df.shape[0],
+            'columns': cleaned_df.shape[1],
+            'column_names': cleaned_df.columns.tolist()
+        },
+        'histograms': histograms,
+        'scatter_plot': scatter_plot,
+        'cleaned_data': cleaned_data,
+        'original_data': original_data,
+        'numerical_columns': numerical_columns,
+        'categorical_columns': categorical_columns,
+    }
+    # send the CSV content back to the template
+    return render(request, 'selected_file_info.html', context)
+
 def generated_graphs(request):
     if request.method == 'POST':
         # load the CSV file from the session

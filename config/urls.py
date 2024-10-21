@@ -36,6 +36,7 @@ urlpatterns = [
     # selected file
     path('files/<int:file_id>/', sfv.file_detail, name='file_detail'),
     path('files/<int:file_id>/select/', sfv.select_file, name='select_file'),
+    path('files/select_file/', sfv.select_file_view, name='select_file_view'),
     path('files/generated_graphs/', sfv.generated_graphs, name='generated_graphs'),
 
 ]
