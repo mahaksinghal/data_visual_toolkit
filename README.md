@@ -1,5 +1,5 @@
 # Data Visualization Toolkit
-This project is a Django-based web application that allows users to upload CSV files using [HTMX], clean and process the data using [Plotly], view previously uploaded files, display CSV data in an interactive table using [DataTables] Javascript library and visualize data using [Plotly] library.
+This project is a Django-based web application that allows users to upload CSV files using [HTMX], clean and process the data using [Pandas], view previously uploaded files, display CSV data in an interactive table using [DataTables] Javascript library and visualize data using [Plotly] library.
 
 ## Features
 - **CSV Upload:** Users can upload CSV files to the application.
